@@ -1,4 +1,4 @@
-module test
+module influx-tools
 
 go 1.14
 

@@ -7,10 +7,10 @@ import (
 )
 
 type pageInfo struct {
-	PageSize  uint
-	PageNo    uint
-	PageCount uint
-	TotalNums uint
+	PageSize  uint64
+	PageNo    uint64
+	PageCount uint64
+	TotalNums uint64
 }
 
 type QueryPageResults struct {
@@ -45,11 +45,11 @@ func (q *queryPageApiImpl) QueryPageRows(influxQL string) (QueryPageResults, err
 	return QueryPageResults{PageInfo: *q.pageInfo, PageData: result}, nil
 }
 
-func NewPageInfo(pageSize, pageNo, totalNums uint) *pageInfo {
+func NewPageInfo(pageSize, pageNo, totalNums uint64) *pageInfo {
 	// count pages
-	var pageCount uint
+	var pageCount uint64
 	if pageSize > 0 {
-		pageCount = uint(math.Ceil(float64(totalNums) / float64(pageSize)))
+		pageCount = uint64(math.Ceil(float64(totalNums) / float64(pageSize)))
 	}
 	return &pageInfo{
 		PageSize:  pageSize,

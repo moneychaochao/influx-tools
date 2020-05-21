@@ -47,14 +47,14 @@ func (q *queryApiImpl) QueryRow(influxQL string) (QueryResult, error) {
 	}
 }
 
-func (q *queryApiImpl) QueryCount(influxQL string) (uint, error) {
+func (q *queryApiImpl) QueryCount(influxQL string) (uint64, error) {
 	if result, err := q.QueryRow(influxQL); err == nil {
 		if count, ok := result["count_value"]; ok {
 			i, err := count.(json.Number).Int64()
 			if err != nil {
 				return 0, err
 			}
-			return uint(i), nil
+			return uint64(i), nil
 		}
 		return 0, errors.New("query count error")
 	} else {

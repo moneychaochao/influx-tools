@@ -5,9 +5,9 @@ import (
 	"fmt"
 	_ "github.com/influxdata/influxdb1-client"
 	client "github.com/influxdata/influxdb1-client/v2"
+	"influx-tools/influx"
 	"net/http"
 	"strconv"
-	"test/influx"
 	"time"
 )
 
@@ -19,23 +19,28 @@ func main() {
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request)  {
+func handler(w http.ResponseWriter, r *http.Request) {
 	getData := r.URL.Query()
 
-	pageSize , err := strconv.Atoi(getData.Get("pagesize"))
+	pageSize, err := strconv.Atoi(getData.Get("pagesize"))
 	if err != nil {
 		_, _ = w.Write([]byte("page size error: " + err.Error()))
 		return
 	}
 
-	pageNo , err := strconv.Atoi(getData.Get("pageno"))
+	pageNo, err := strconv.Atoi(getData.Get("pageno"))
 	if err != nil {
 		_, _ = w.Write([]byte("page no error: " + err.Error()))
 		return
 	}
 
+	if pageSize < 0 || pageNo < 0 {
+		_, _ = w.Write([]byte("page size or page no error"))
+		return
+	}
+
 	c, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr: "http://192.168.33.10:8086",
+		Addr:    "http://192.168.33.10:8086",
 		Timeout: time.Second * 5,
 	})
 
@@ -55,7 +60,7 @@ func handler(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	queryPageApi := influx.NewQueryPageApi(influx.NewPageInfo(uint(pageSize), uint(pageNo), totalNums), queryApi)
+	queryPageApi := influx.NewQueryPageApi(influx.NewPageInfo(uint64(pageSize), uint64(pageNo), totalNums), queryApi)
 
 	result, err := queryPageApi.QueryPageRows("select * from cpu_load_short")
 
@@ -72,4 +77,3 @@ func handler(w http.ResponseWriter, r *http.Request)  {
 
 	_, _ = w.Write(rJson)
 }
-
