@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/hello", handler)
+	http.HandleFunc("/test", handler)
 	err := http.ListenAndServe(":12345", nil)
 	if err != nil {
 		fmt.Println("ListenAndServe: ", err)
@@ -40,7 +40,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:    "http://192.168.33.10:8086",
+		Addr:    "http://influx.reigncn.com:8086",
 		Timeout: time.Second * 5,
 	})
 
@@ -53,7 +53,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	queryApi := influx.NewQueryApi(c, "test")
 
-	totalNums, err := queryApi.QueryCount("select count(*) from cpu_load_short")
+	totalNums, err := queryApi.QueryCount("select count(internal) from temperature")
 
 	if err != nil {
 		_, _ = w.Write([]byte("query count error: " + err.Error()))
@@ -62,7 +62,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	queryPageApi := influx.NewQueryPageApi(influx.NewPageInfo(uint64(pageSize), uint64(pageNo), totalNums), queryApi)
 
-	result, err := queryPageApi.QueryPageRows("select * from cpu_load_short")
+	result, err := queryPageApi.QueryPageRows("select * from temperature")
 
 	if err != nil {
 		_, _ = w.Write([]byte("query error: " + err.Error()))
